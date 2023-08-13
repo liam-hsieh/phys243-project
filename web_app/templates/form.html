@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cost and ROI Estimation</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<style>
+    .output {
+        background-color: white;
+        padding: 10px;
+        border: 1px solid #ccc;
+        margin-top: 20px;
+    }
+</style>
+
+<body>
+    <!-- Display potential error messages -->
+    {% if error_message %}
+    <h3>Error</h3>
+    <p style="color: red;">{{ error_message }}</p>
+    {% endif %}
+    <h2>Enter Home and Addition Details</h2>
+    <form method="post">
+        <!-- Original home details -->
+        <h3>Original Home Features</h3>
+	Area: <input type="text" name="area" value="{{ request.form.area|default('') }}" placeholder="Area in sqft"><br>
+	Bedrooms: <input type="text" name="bedrooms_existing" value="{{ request.form.bedrooms_existing|default('') }}" placeholder="Number of bedrooms"><br>
+	Bathrooms: <input type="text" name="bathrooms_existing" value="{{ request.form.bathrooms_existing|default('') }}" placeholder="Number of bathrooms"><br>
+	Stories: <input type="text" name="stories" value="{{ request.form.stories|default('') }}" placeholder="Number of stories"><br>
+	Mainroad: <select name="mainroad"><option value="1" {% if request.form.mainroad == '1' %}selected{% endif %}>Yes</option><option value="0" {% if request.form.mainroad == '0' %}selected{% endif %}>No</option></select><br>
+	Guestroom: <select name="guestroom"><option value="1" {% if request.form.guestroom == '1' %}selected{% endif %}>Yes</option><option value="0" {% if request.form.guestroom == '0' %}selected{% endif %}>No</option></select><br>
+	Basement: <select name="basement"><option value="1" {% if request.form.basement == '1' %}selected{% endif %}>Yes</option><option value="0" {% if request.form.basement == '0' %}selected{% endif %}>No</option></select><br>
+	Hot water heating: <select name="hot_water_heating"><option value="1" {% if request.form.hot_water_heating == '1' %}selected{% endif %}>Yes</option><option value="0" {% if request.form.hot_water_heating == '0' %}selected{% endif %}>No</option></select><br>
+	Airconditioning: <select name="airconditioning"><option value="1" {% if request.form.airconditioning == '1' %}selected{% endif %}>Yes</option><option value="0" {% if request.form.airconditioning == '0' %}selected{% endif %}>No</option></select><br>
+	Parking: <input type="text" name="parking" value="{{ request.form.parking|default('') }}" placeholder="Number of parking spaces"><br>
+	Prefarea: <select name="prefarea"><option value="1" {% if request.form.prefarea == '1' %}selected{% endif %}>Yes</option><option value="0" {% if request.form.prefarea == '0' %}selected{% endif %}>No</option></select><br>
+	Furnishing status: <select name="furnishing_status">
+                    		<option value="1" {% if request.form.furnishing_status == '1' %}selected{% endif %}>Fully Furnished</option>
+                    		<option value="2" {% if request.form.furnishing_status == '2' %}selected{% endif %}>Semi-Furnished</option>
+                    		<option value="3" {% if request.form.furnishing_status == '3' %}selected{% endif %}>Unfurnished</option>
+                	</select><br>
+
+        <!-- Addition details -->
+        <h3>Addition Features</h3>
+        Additional Bedrooms: <input type="text" name="bedrooms_addition" value="{{ request.form.bedrooms_addition|default('') }}" placeholder="Number of added bedrooms"><br>
+	Additional Bathrooms: <input type="text" name="bathrooms_addition" value="{{ request.form.bathrooms_addition|default('') }}" placeholder="Number of added bathrooms"><br>
+	Kitchen: <select name="kitchen"><option value="Yes" {% if request.form.kitchen == 'Yes' %}selected{% endif %}>Yes</option><option value="No" {% if request.form.kitchen == 'No' %}selected{% endif %}>No</option></select><br>
+	Living Room: <select name="living_room"><option value="Yes" {% if request.form.living_room == 'Yes' %}selected{% endif %}>Yes</option><option value="No" {% if request.form.living_room == 'No' %}selected{% endif %}>No</option></select><br>
+	Detached: <select name="detached"><option value="1" {% if request.form.detached == '1' %}selected{% endif %}>Yes</option><option value="0" {% if request.form.detached == '0' %}selected{% endif %}>No</option></select><br>
+	Modified sqft: <input type="text" name="modified_sqft" value="{{ request.form.modified_sqft|default('') }}" placeholder="Modified area in sqft"><br>
+	Additional sqft: <input type="text" name="additional_sqft" value="{{ request.form.additional_sqft|default('') }}" placeholder="Additional area in sqft"><br>
+	2nd story: <select name="second_story"><option value="Yes" {% if request.form.second_story == 'Yes' %}selected{% endif %}>Yes</option><option value="No" {% if request.form.second_story == 'No' %}selected{% endif %}>No</option></select><br>
+	High-end factor (0 to 10): <input type="text" name="high_end" value="{{ request.form.high_end|default('') }}"><br>
+        <input type="submit" value="Estimate">
+    </form>
+
+    <!-- Display the results -->
+    {% if plot_url %}
+    <div class="output">
+        <h3>Results</h3>
+        <img src="data:image/png;base64,{{ plot_url }}">
+        <p>95% Confidence Interval for Improvement Cost: {{ confidence_interval }}</p>
+        <p>Original Home Price Estimate: ${{ original_home_price | round(2) }}</p>
+        <p>Modified Home Price Estimate: ${{ modified_home_price | round(2) }}</p>
+        <p>Estimated ROI: {{ roi_value | round(2) }}%</p>
+    </div>
+    {% endif %}
+</body>
+
+</html>
