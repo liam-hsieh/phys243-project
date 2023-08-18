@@ -43,10 +43,15 @@ clf_sd = Ridge(alpha=1.0)
 clf_sd.fit(X, y_sd)
 
 
-def predict_home_price(bedrooms, bathrooms, squarefeet):
-    price_factor = (bedrooms / 3) + (bathrooms / 2) + (squarefeet / 2000)
-    home_price = (price_factor * 400000) / 3
-    return home_price
+def predict_home_price(bedrooms, bathrooms, squarefeet, stories):
+    return -261898.85 + (379.62 * squarefeet) + (189063.88 * bedrooms) + (1206939.36 * bathrooms) + (531871.63 * stories)    
+
+    
+
+# def predict_home_price(bedrooms, bathrooms, squarefeet):
+#     price_factor = (bedrooms / 3) + (bathrooms / 2) + (squarefeet / 2000)
+#     home_price = (price_factor * 400000) / 3
+#     return home_price
 
 def predict_cost_distribution(user_input, model_mean, model_sd, high_end, n_samples=1000, min_threshold=10000):
     base_mean_prediction = model_mean.predict([user_input])[0]
@@ -108,8 +113,8 @@ def index():
             furnished_existing = int(request.form["furnishing_status"])
     
 
-            original_home_price = predict_home_price(bedrooms_existing, bathrooms_existing, area)
-    
+            # original_home_price = predict_home_price(bedrooms_existing, bathrooms_existing, area)
+            original_home_price = predict_home_price(bedrooms_existing, bathrooms_existing, area,stories_existing)
 
             bedrooms_addition = int(request.form["bedrooms_addition"])
             bathrooms_addition = int(request.form["bathrooms_addition"])
@@ -127,7 +132,8 @@ def index():
             sqft_new = area + additional_sqft
     
 
-            modified_home_price = predict_home_price(bedrooms_new, bathrooms_new, sqft_new)
+            # modified_home_price = predict_home_price(bedrooms_new, bathrooms_new, sqft_new)
+            modified_home_price = predict_home_price(bedrooms_new, bathrooms_new, sqft_new, stories_existing)
             tot_sqft = modified_sqft + additional_sqft
             user_data = [bedrooms_addition, bathrooms_addition, kitchen, living_room, detached, modified_sqft, additional_sqft, second_story, tot_sqft]
             samples = predict_cost_distribution(user_data, clf_mean, clf_sd, high_end)
