@@ -20,27 +20,36 @@ app = Flask("Cost Distribution")
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 
-csv_file_path = os.path.join(script_dir, 'price_data.csv')
+#csv_file_path = os.path.join(script_dir, 'price_data.csv')
 
+# df = pd.read_csv(csv_file_path)
+
+# df['total_sqft'] = df['modified sqft'] + df['additional sqft']
+
+# df['avg_cost'] = df[['low cost', 'high cost']].mean(axis=1)
+
+# df['std_dev'] = (df['high cost'] - df['low cost']) / 6
+
+# X = df.drop(['low cost', 'high cost', 'avg_cost', 'std_dev'], axis=1)
+# y_mean = df['avg_cost']
+# y_sd = df['std_dev']
+
+# # Fit Ridge regression for mean
+# clf_mean = Ridge(alpha=1.0)
+# clf_mean.fit(X, y_mean)
+
+# # Fit Ridge regression for standard deviation
+# clf_sd = Ridge(alpha=1.0)
+# clf_sd.fit(X, y_sd)
+
+csv_file_path = os.path.join(script_dir, 'pseudo_result.csv')
 df = pd.read_csv(csv_file_path)
 
-df['total_sqft'] = df['modified sqft'] + df['additional sqft']
-
-df['avg_cost'] = df[['low cost', 'high cost']].mean(axis=1)
-
-df['std_dev'] = (df['high cost'] - df['low cost']) / 6
-
-X = df.drop(['low cost', 'high cost', 'avg_cost', 'std_dev'], axis=1)
-y_mean = df['avg_cost']
-y_sd = df['std_dev']
-
-# Fit Ridge regression for mean
-clf_mean = Ridge(alpha=1.0)
-clf_mean.fit(X, y_mean)
-
-# Fit Ridge regression for standard deviation
-clf_sd = Ridge(alpha=1.0)
-clf_sd.fit(X, y_sd)
+# # Fit Ridge regression
+X = df.drop(['cost'], axis=1)
+y = df['cost']
+clf = Ridge(alpha=1.0)
+clf.fit(X, y)
 
 
 def predict_home_price(bedrooms, bathrooms, squarefeet, stories):
