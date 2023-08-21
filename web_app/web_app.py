@@ -16,61 +16,21 @@ from io import BytesIO
 import base64
 import os
 
+from utility import cost_distribution_estimate_non_mp_version, cost_distribution_estimate
+
+import warnings
+
+
+
+warnings.simplefilter("ignore", category=UserWarning)
+
 app = Flask("Cost Distribution")
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 
-csv_file_path = os.path.join(script_dir, 'price_data.csv')
-
-df = pd.read_csv(csv_file_path)
-
-df['total_sqft'] = df['modified sqft'] + df['additional sqft']
-
-df['avg_cost'] = df[['low cost', 'high cost']].mean(axis=1)
-
-df['std_dev'] = (df['high cost'] - df['low cost']) / 6
-
-X = df.drop(['low cost', 'high cost', 'avg_cost', 'std_dev'], axis=1)
-y_mean = df['avg_cost']
-y_sd = df['std_dev']
-
-# Fit Ridge regression for mean
-clf_mean = Ridge(alpha=1.0)
-clf_mean.fit(X, y_mean)
-
-# Fit Ridge regression for standard deviation
-clf_sd = Ridge(alpha=1.0)
-clf_sd.fit(X, y_sd)
-
 
 def predict_home_price(bedrooms, bathrooms, squarefeet, stories):
     return -261898.85 + (379.62 * squarefeet) + (189063.88 * bedrooms) + (1206939.36 * bathrooms) + (531871.63 * stories)    
-
-    
-
-# def predict_home_price(bedrooms, bathrooms, squarefeet):
-#     price_factor = (bedrooms / 3) + (bathrooms / 2) + (squarefeet / 2000)
-#     home_price = (price_factor * 400000) / 3
-#     return home_price
-
-def predict_cost_distribution(user_input, model_mean, model_sd, high_end, n_samples=1000, min_threshold=10000):
-    base_mean_prediction = model_mean.predict([user_input])[0]
-    base_sd_prediction = model_sd.predict([user_input])[0]
-    
-
-    mean_offset = (high_end - 5) / 10 * base_mean_prediction
-    adjusted_mean = base_mean_prediction + mean_offset
-    
-
-    sd_scale = 1 - (0.1 * abs(high_end - 5))
-    adjusted_sd = base_sd_prediction * sd_scale
-    
-    samples = np.random.normal(adjusted_mean, adjusted_sd, n_samples)
-    
-
-    samples = np.where(samples < min_threshold, min_threshold, samples)
-    
-    return samples
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -113,7 +73,6 @@ def index():
             furnished_existing = int(request.form["furnishing_status"])
     
 
-            # original_home_price = predict_home_price(bedrooms_existing, bathrooms_existing, area)
             original_home_price = predict_home_price(bedrooms_existing, bathrooms_existing, area,stories_existing)
 
             bedrooms_addition = int(request.form["bedrooms_addition"])
@@ -135,9 +94,18 @@ def index():
             # modified_home_price = predict_home_price(bedrooms_new, bathrooms_new, sqft_new)
             modified_home_price = predict_home_price(bedrooms_new, bathrooms_new, sqft_new, stories_existing)
             tot_sqft = modified_sqft + additional_sqft
-            user_data = [bedrooms_addition, bathrooms_addition, kitchen, living_room, detached, modified_sqft, additional_sqft, second_story, tot_sqft]
-            samples = predict_cost_distribution(user_data, clf_mean, clf_sd, high_end)
-            
+            user_data = [
+                bedrooms_addition,
+                bathrooms_addition,
+                kitchen,
+                living_room,
+                detached,
+                modified_sqft,
+                additional_sqft,
+                second_story
+            ]
+
+            expected_cost,samples = cost_distribution_estimate_non_mp_version(user_data,high_end)
 
             expected_cost = np.mean(samples)
             
