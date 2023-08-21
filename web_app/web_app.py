@@ -73,7 +73,6 @@ def index():
             furnished_existing = int(request.form["furnishing_status"])
     
 
-            # original_home_price = predict_home_price(bedrooms_existing, bathrooms_existing, area)
             original_home_price = predict_home_price(bedrooms_existing, bathrooms_existing, area,stories_existing)
 
             bedrooms_addition = int(request.form["bedrooms_addition"])
@@ -95,8 +94,6 @@ def index():
             # modified_home_price = predict_home_price(bedrooms_new, bathrooms_new, sqft_new)
             modified_home_price = predict_home_price(bedrooms_new, bathrooms_new, sqft_new, stories_existing)
             tot_sqft = modified_sqft + additional_sqft
-            #user_data = [bedrooms_addition, bathrooms_addition, kitchen, living_room, detached, modified_sqft, additional_sqft, second_story, tot_sqft]
-            #samples = predict_cost_distribution(user_data, clf_mean, clf_sd, high_end)
             user_data = [
                 bedrooms_addition,
                 bathrooms_addition,
