@@ -33,3 +33,10 @@ of home improvement projects to help homeowners maximize their **return on**
 dataset along with a number of trusted articles to guage values and other
 necessary information regarding home features and their relation to overall
 home price.
+
+# How to Run Web UI locally?
+* Step 1: Go to web_app -> web_app.py
+* Step 2: Run web_app.py
+* Step 3: Go to http://127.0.0.1:5000
+* Step 4: Alternate: Go into the project.ipynb file to view the application after web_app.py is running
+* Step 5: Alternate 2: Contact James Siefert (james.siefert@email.ucr.edu) and I can run a local server and send a URL for easy access.

@@ -5,6 +5,9 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="pragma" content="no-cache">
+    <meta http-equiv="expires" content="0">
     <title>Cost and ROI Estimation</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
@@ -54,7 +57,7 @@
 	Detached: <select name="detached"><option value="1" {% if request.form.detached == '1' %}selected{% endif %}>Yes</option><option value="0" {% if request.form.detached == '0' %}selected{% endif %}>No</option></select><br>
 	Modified sqft: <input type="text" name="modified_sqft" value="{{ request.form.modified_sqft|default('') }}" placeholder="Modified area in sqft"><br>
 	Additional sqft: <input type="text" name="additional_sqft" value="{{ request.form.additional_sqft|default('') }}" placeholder="Additional area in sqft"><br>
-	2nd story: <select name="second_story"><option value="Yes" {% if request.form.second_story == 'Yes' %}selected{% endif %}>Yes</option><option value="No" {% if request.form.second_story == 'No' %}selected{% endif %}>No</option></select><br>
+	Adding another story?: <select name="second_story"><option value="Yes" {% if request.form.second_story == 'Yes' %}selected{% endif %}>Yes</option><option value="No" {% if request.form.second_story == 'No' %}selected{% endif %}>No</option></select><br>
 	High-end factor (0 to 10): <input type="text" name="high_end" value="{{ request.form.high_end|default('') }}"><br>
         <input type="submit" value="Estimate">
     </form>

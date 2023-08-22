@@ -3,3 +3,8 @@ scikit-learn
 seaborn
 ipykernel
 flask
+matplotlib
+io
+base64
+os
+warnings

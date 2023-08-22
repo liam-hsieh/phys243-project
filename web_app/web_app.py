@@ -16,23 +16,23 @@ from io import BytesIO
 import base64
 import os
 
+# Import functions from utility.py
 from utility import cost_distribution_estimate_non_mp_version, cost_distribution_estimate
 
 import warnings
 
 
-
+# Ignore warnings
 warnings.simplefilter("ignore", category=UserWarning)
 
+# Flask app
 app = Flask("Cost Distribution")
 
-script_dir = os.path.dirname(os.path.abspath(__file__))
-
-
+# Predict home prices based on linear regression model created in "project.ipynb"
 def predict_home_price(bedrooms, bathrooms, squarefeet, stories):
     return -261898.85 + (379.62 * squarefeet) + (189063.88 * bedrooms) + (1206939.36 * bathrooms) + (531871.63 * stories)    
 
-
+# Define route for main index page
 @app.route('/', methods=['GET', 'POST'])
 def index():
     plot_url = None
@@ -43,7 +43,8 @@ def index():
     error_message = None
 
     if request.method == 'POST':
-
+        
+        # These are the user inputs that need to be entered in the app
         required_fields = ["area", "bedrooms_existing", "bathrooms_existing",
                    "bedrooms_addition", "bathrooms_addition", "kitchen",
                    "living_room", "modified_sqft", "additional_sqft", "second_story",
@@ -53,12 +54,14 @@ def index():
                    "kitchen", "living_room", "detached", "modified_sqft",
                    "additional_sqft", "second_story", "high_end"]
 
-
+        
+        # Throw an error if not all fields are filled
         if not all(request.form[field] for field in required_fields):
             error_message = "All fields must be filled out."
             print("Error Message:", error_message)  
         else:
-
+            
+            # Extract inputs
             area = float(request.form["area"])
             bedrooms_existing = int(request.form["bedrooms_existing"])
             bathrooms_existing = int(request.form["bathrooms_existing"])
@@ -72,9 +75,10 @@ def index():
             prefer_existing = int(request.form["prefarea"])
             furnished_existing = int(request.form["furnishing_status"])
     
-
+            # Use linear regression model to predict existing home price
             original_home_price = predict_home_price(bedrooms_existing, bathrooms_existing, area,stories_existing)
-
+            
+            # Extract addition parameters
             bedrooms_addition = int(request.form["bedrooms_addition"])
             bathrooms_addition = int(request.form["bathrooms_addition"])
             kitchen = 1 if request.form["kitchen"] == 'y' else 0
@@ -85,15 +89,14 @@ def index():
             second_story = 1 if request.form["second_story"] == 'y' else 0
             high_end = float(request.form["high_end"])
     
-
+            # Define new parameters based on the additiona details
             bedrooms_new = bedrooms_existing + bedrooms_addition
             bathrooms_new = bathrooms_existing + bathrooms_addition
             sqft_new = area + additional_sqft
+            stories_new = stories_existing + second_story
     
-
-            # modified_home_price = predict_home_price(bedrooms_new, bathrooms_new, sqft_new)
-            modified_home_price = predict_home_price(bedrooms_new, bathrooms_new, sqft_new, stories_existing)
-            tot_sqft = modified_sqft + additional_sqft
+            # Calculate new home price based on the new parameters
+            modified_home_price = predict_home_price(bedrooms_new, bathrooms_new, sqft_new, stories_new)
             user_data = [
                 bedrooms_addition,
                 bathrooms_addition,
@@ -104,36 +107,44 @@ def index():
                 additional_sqft,
                 second_story
             ]
-
+            
+            # Calculate a distribution of cost estimates based on the "utility.py" file
             expected_cost,samples = cost_distribution_estimate_non_mp_version(user_data,high_end)
-
+            
+            # Calculate the mean
             expected_cost = np.mean(samples)
             
-
+            # Calculate increase in home price
             increase_in_home_value = modified_home_price - original_home_price
+            
+            # Calculate the ROI value based on mean expected cost
             roi_value = (increase_in_home_value / expected_cost) - 1
     
-
+            # Plot distribution
             img = BytesIO()
-            sns.kdeplot(samples, shade=True)
+            fig, ax = plt.subplots()
+            sns.kdeplot(samples, shade=True, ax=ax)
             plt.xlabel('Estimated Cost')
             plt.ylabel('Probability Density')
             plt.title('Estimated Cost Distribution')
             plt.ticklabel_format(style='plain', axis='y')
+            plt.legend([])
+            plt.subplots_adjust(left=0.15, right=1)
             plt.savefig(img, format="png")
             img.seek(0)
             plot_url = base64.b64encode(img.getvalue()).decode('utf8')
     
-
+            # Print 95% confidence interval
             lower_bound = np.percentile(samples, 2.5)
             upper_bound = np.percentile(samples, 97.5)
             confidence_interval = f"${lower_bound:.2f} - ${upper_bound:.2f}"
-
+            
+            # Show the results in the app
     return render_template('form.html', plot_url=plot_url, confidence_interval=confidence_interval, 
                            roi_value=roi_value, original_home_price=original_home_price, modified_home_price=modified_home_price, 
                            error_message=error_message)
 
-
+# Run app
 if __name__ == '__main__':
     app.run(debug=True)
 
