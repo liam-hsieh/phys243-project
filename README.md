@@ -34,6 +34,21 @@ dataset along with a number of trusted articles to guage values and other
 necessary information regarding home features and their relation to overall
 home price.
 
+This project is broken into multiple phases: module creation, model training,
+model evaluation and refinement, and ROI calculation and integration. Each phase
+builds off of the previous in the Jupyter notebook to describe the machine learning
+process for the housing dataset, extensions of the data provided in the dataset
+through the creation of Python modules, and web appplication interfaces that link
+the trained model with the Python modules.
+
+### Goals
+
+The goal of this project is to extend beyond the basic machine learning process
+with sample data and challenge ourselves to think about an extensible problem.
+While this project takes a number of steps past creating a linear regression model
+for the Kaggle dataset, it can be extended and advanced with the addition of more
+parameters and more data and training.
+
 ### How to Run the Web UI locally
 * Step 1: Go to `web_app/` -> `web_app.py`
 * Step 2: Run `web_app.py`
