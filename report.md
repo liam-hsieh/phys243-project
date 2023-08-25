@@ -56,7 +56,9 @@ In this step, we aim to predict property values based on a set of features using
 
 The linear regression model predicts property values using the equation:
 
-$$ y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \ldots + \beta_n x_n + \epsilon $$
+$$ 
+y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \ldots + \beta_n x_n + \epsilon 
+$$
 
 Where $x_1, x_2, \ldots, x_n$ are the individual features corresponding to each observation. The coefficients $\beta_0, \beta_1, \beta_2, \ldots, \beta_n$ are estimated during the model training process to minimize the sum of squared errors between the predicted and actual values.
 
@@ -74,7 +76,7 @@ The **high-end factor** is a pivotal element in our methodology, serving as a me
 
 Our approach to generating the training dataset involves a process of simulating and accommodating various cost estimates. To achieve this, we employ a **triangular distribution**. This distribution facilitates the creation of random variables that are most likely to cluster around a specific mode ($c$), while also encompassing a range from a lower limit ($a$) to an upper limit ($b$).
 
-In our context, $a$ represents the lower-bound cost, $b$ represents the upper-bound cost, and $c$ is determined based on the high-end factor ($h$). Notably, the high-end factor can take values from 1 to 10, representing different levels of cost estimation.
+In our context, $a$ represents the lower-bound cost, $b$ represents the upper-bound cost, and $c$ is proportional to high-end factor $h$. Notably, the high-end factor can take values from 1 to 10, representing different levels of cost estimation.
 
 Mathematically, the mode $c$ is calculated as:
 
@@ -153,7 +155,7 @@ Calculating the Return on Investment (ROI) is a pivotal step in determining the 
 #### Formula for ROI
 The formula to calculate ROI is as follows:
 $$
-\text{ROI} = \frac{\text{(Modified Home Price - Original Home Price)} }{\text{ Estimated Cost of Improvements}}-1
+\text{ROI} = \frac{\text{(Modified Home Price - Original Home Price)} }{\text{Estimated Cost of Improvements}}-1
 $$
 
 , where
